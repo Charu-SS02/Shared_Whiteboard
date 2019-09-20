@@ -16,6 +16,9 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseMotionAdapter;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class MainView{
 
@@ -58,34 +61,42 @@ public class MainView{
 		frame.getContentPane().setLayout(null);
 		
 		JPanel leftPanel = new JPanel();
-		leftPanel.setBounds(0, 0, 98, 567);
+		leftPanel.setBounds(0, 0, 146, 567);
 		leftPanel.setBackground(Color.LIGHT_GRAY);
 		frame.getContentPane().add(leftPanel);
 		leftPanel.setLayout(null);
 		
 		JButton btnCircle = new JButton("Circle");
-		btnCircle.setBounds(6, 97, 86, 39);
+		btnCircle.setBounds(6, 97, 65, 39);
 		leftPanel.add(btnCircle);
 		
 		JButton btnLine = new JButton("Line");
-		btnLine.setBounds(6, 136, 86, 39);
+		btnLine.setBounds(6, 136, 65, 39);
 		leftPanel.add(btnLine);
 		
 		JButton btnOval = new JButton("Oval");
-		btnOval.setBounds(6, 175, 86, 39);
+		btnOval.setBounds(75, 97, 65, 39);
 		leftPanel.add(btnOval);
 		
-		JButton btnRectangle = new JButton("Rectangle");
-		btnRectangle.setBounds(6, 214, 86, 39);
+		JButton btnRectangle = new JButton("Rect");
+		btnRectangle.setBounds(75, 136, 65, 39);
 		leftPanel.add(btnRectangle);
 		
 		JButton btnEraser = new JButton("Eraser");
-		btnEraser.setBounds(6, 522, 86, 39);
+		btnEraser.setBounds(6, 522, 134, 39);
 		leftPanel.add(btnEraser);
 		
 		JButton btnPencil = new JButton("Pencil");
-		btnPencil.setBounds(6, 50, 86, 39);
+		btnPencil.setBounds(6, 55, 134, 39);
 		leftPanel.add(btnPencil);
+		
+		JSlider sldStrokeSize = new JSlider();
+		sldStrokeSize.setValue(2);
+		sldStrokeSize.setMinorTickSpacing(1);
+		sldStrokeSize.setMaximum(20);
+		sldStrokeSize.setMinimum(1);
+		sldStrokeSize.setBounds(6, 249, 134, 29);
+		leftPanel.add(sldStrokeSize);
 		
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBounds(713, 0, 113, 567);
@@ -96,7 +107,7 @@ public class MainView{
 		
 		
 		drawPanel.setBackground(Color.WHITE);
-		drawPanel.setBounds(111, 6, 590, 561);
+		drawPanel.setBounds(162, 6, 539, 561);
 		frame.getContentPane().add(drawPanel);
 		drawPanel.Initialize(drawPanel.getHeight(), drawPanel.getWidth());
 		
@@ -172,6 +183,12 @@ public class MainView{
 			}
 		});
 	
+		// Stroke Size Slider Changed
+		sldStrokeSize.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				State.tool.width = sldStrokeSize.getValue();
+			}
+		});
 	}
 	
 	
