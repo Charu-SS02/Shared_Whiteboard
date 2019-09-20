@@ -52,9 +52,9 @@ public class ColorSelector extends JPanel
 	public Color GetColor(Point point)
 	{
 		int clr = clrWheelImg.getRGB(point.x, point.y);
-		int  red   = (clr & 0x00ff0000) >> 16;
-		int  green = (clr & 0x0000ff00) >> 8;
-		int  blue  =  clr & 0x000000ff;
+		int red   = (clr & 0x00ff0000) >> 16;
+		int green = (clr & 0x0000ff00) >> 8;
+		int blue  =  clr & 0x000000ff;
 		
 		return new Color(red,green,blue);
 	}

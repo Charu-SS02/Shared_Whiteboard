@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
+import controller.State;
 import controller.Tool;
 
 @SuppressWarnings("serial")
@@ -63,6 +64,10 @@ public class DrawPanel extends JPanel
 			case Tool.PENCIL:
 				DrawLine(tool.Point(0),tool.Point(1),tool.clr,tool.width);
 				return;
+				
+			case Tool.ERASER:
+				ApplyEraser(tool.Point(0),tool.Point(1),State.bgColor,tool.width);
+				return;
 		}
 	}
 	
@@ -115,6 +120,17 @@ public class DrawPanel extends JPanel
 	    
 	    Point p = new Point((p1.x<p2.x)?p1.x:p2.x,(p1.y<p2.y)?p1.y:p2.y);
 	    g2.drawRect(p.x, p.y, Math.abs(p1.x-p2.x), Math.abs(p1.y-p2.y));
+		repaint();
+	}
+	
+	public void ApplyEraser(Point p1, Point p2, Color clr, int width)
+	{
+		Graphics2D g2 = bImage.createGraphics();
+		
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g2.setStroke(new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+	    g2.setColor(clr);
+	    g2.drawLine(p1.x, p1.y, p2.x, p2.y);
 		repaint();
 	}
 	

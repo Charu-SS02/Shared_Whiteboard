@@ -228,6 +228,12 @@ public class MainView{
 		colorWheel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Added exception because if the user click and drag the mouse
+				// outside of the panel then it will throw exception
+				try{Color clr = colorWheel.GetColor(e.getPoint());
+				State.tool.clr = clr;
+				pnlColorView.setBackground(clr);}
+				catch(Exception exp) {return;}
 			}
 		});
 	}
