@@ -6,6 +6,7 @@ import java.awt.Point;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import controller.ColorSelector;
 import controller.State;
 import controller.Tool;
 
@@ -19,6 +20,7 @@ import java.awt.event.MouseMotionAdapter;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.JLabel;
 
 public class MainView{
 
@@ -98,11 +100,28 @@ public class MainView{
 		sldStrokeSize.setBounds(6, 249, 134, 29);
 		leftPanel.add(sldStrokeSize);
 		
+		JLabel lblStrokeSize = new JLabel("Stroke Size: 2");
+		lblStrokeSize.setBounds(12, 230, 134, 16);
+		leftPanel.add(lblStrokeSize);
+		
+		JLabel lblColor = new JLabel("Color");
+		lblColor.setBounds(10, 323, 61, 16);
+		leftPanel.add(lblColor);
+		
+		ColorSelector colorWheel = new ColorSelector();
+		colorWheel.setBounds(6, 351, 134, 134);
+		leftPanel.add(colorWheel);
+		
+		JPanel pnlColorView = new JPanel();
+		pnlColorView.setBackground(Color.BLACK);
+		pnlColorView.setBounds(75, 315, 65, 29);
+		leftPanel.add(pnlColorView);
+		colorWheel.LoadImage();
+		
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBounds(713, 0, 113, 567);
 		rightPanel.setBackground(Color.LIGHT_GRAY);
 		frame.getContentPane().add(rightPanel);
-		
 		
 		
 		
@@ -186,7 +205,29 @@ public class MainView{
 		// Stroke Size Slider Changed
 		sldStrokeSize.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				State.tool.width = sldStrokeSize.getValue();
+				int strokeVal = sldStrokeSize.getValue();
+				State.tool.width = strokeVal;
+				lblStrokeSize.setText("Stroke Size: "+strokeVal);
+			}
+		});
+		
+		// Mouse Drag on Color Wheel
+		colorWheel.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// Added exception because if the user click and drag the mouse
+				// outside of the panel then it will throw exception
+				try{Color clr = colorWheel.GetColor(e.getPoint());
+				State.tool.clr = clr;
+				pnlColorView.setBackground(clr);}
+				catch(Exception exp) {return;}
+			}
+		});
+		
+		// Mouse Clicked on Color Wheel
+		colorWheel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
 			}
 		});
 	}
