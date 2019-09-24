@@ -25,4 +25,8 @@ public class State {
 	{
 		System.out.println(msg);
 	}
+	public static void ErrorLog(String msg)
+	{
+		System.err.println(msg);
+	}
 }

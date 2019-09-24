@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import controller.ColorSelector;
+import controller.SaveLoad;
 import controller.State;
 import controller.Tool;
 
@@ -21,11 +22,15 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.JLabel;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
 
 public class MainView{
 
 	private JFrame frame;
 	DrawPanel drawPanel = new DrawPanel();
+	SaveLoad saveload = new SaveLoad();
 	
 	/**
 	 * Launch the application.
@@ -58,7 +63,7 @@ public class MainView{
 		State.Initialize();
 		
 		frame = new JFrame();
-		frame.setBounds(100, 100, 827, 595);
+		frame.setBounds(100, 100, 828, 615);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -128,6 +133,24 @@ public class MainView{
 		drawPanel.setBackground(Color.WHITE);
 		drawPanel.setBounds(162, 6, 539, 561);
 		frame.getContentPane().add(drawPanel);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmNew = new JMenuItem("New");
+		mnFile.add(mntmNew);
+		
+		JMenuItem mntmLoad = new JMenuItem("Load");
+		mnFile.add(mntmLoad);
+		
+		JMenuItem mntmSave = new JMenuItem("Save");
+		mnFile.add(mntmSave);
+		
+		JMenuItem mntmSaveAs = new JMenuItem("Save As");
+		mnFile.add(mntmSaveAs);
 		drawPanel.Initialize(drawPanel.getHeight(), drawPanel.getWidth());
 		
 		// --------------------------------------------
@@ -236,6 +259,43 @@ public class MainView{
 				catch(Exception exp) {return;}
 			}
 		});
+		
+		
+
+		//
+		// --------------- Menu Buttons ---------------
+		//
+
+		
+		// Menu New Button Click
+		mntmNew.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveload.New(drawPanel, frame);
+			}
+		});
+
+		// Menu Load Button Click
+		mntmLoad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveload.Load(drawPanel, frame);
+			}
+		});
+		
+		// Menu Save Button Click
+		mntmSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveload.Save(drawPanel.bImage, frame);
+			}
+		});
+		
+		// Menu Save As Button Click
+		mntmSaveAs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveload.SaveAs(drawPanel.bImage,frame);
+			}
+		});
+		
+	
 	}
 	
 	

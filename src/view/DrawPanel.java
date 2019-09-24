@@ -17,7 +17,7 @@ import controller.Tool;
 public class DrawPanel extends JPanel
 {
 	public int width, height;
-	private BufferedImage bImage; 
+	public BufferedImage bImage; 
 
 	public DrawPanel()
 	{
