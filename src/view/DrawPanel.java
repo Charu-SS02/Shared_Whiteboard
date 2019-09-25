@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 import controller.State;
 import controller.Tool;
+import controller.UndoRedo;
 
 @SuppressWarnings("serial")
 public class DrawPanel extends JPanel
@@ -81,7 +82,7 @@ public class DrawPanel extends JPanel
 		// Deep Copy Here
 		//if(!complete) 
 		buffImage = DeepCopy(mainImage);
-		
+		UndoRedo.ResetRedo();
 	}
 	
 	

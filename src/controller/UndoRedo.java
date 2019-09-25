@@ -43,6 +43,11 @@ public class UndoRedo {
 		//State.Log("Redo Stack Size: "+redoStack.size());
 	}
 	
+	public static void ResetRedo()
+	{
+		redoStack.clear();
+	}
+	
 	public static void Clear()
 	{
 		undoStack.clear();
