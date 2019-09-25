@@ -284,14 +284,14 @@ public class MainView{
 		// Menu Save Button Click
 		mntmSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveload.Save(drawPanel.bImage, frame);
+				saveload.Save(drawPanel.mainImage, frame);
 			}
 		});
 		
 		// Menu Save As Button Click
 		mntmSaveAs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveload.SaveAs(drawPanel.bImage,frame);
+				saveload.SaveAs(drawPanel.mainImage,frame);
 			}
 		});
 		
@@ -323,7 +323,7 @@ public class MainView{
 		Tool tool = new Tool(State.tool);
 		
 		tool.AddPoints(State.preMouse, State.currMouse);
-		drawPanel.Draw(tool);
+		drawPanel.Draw(tool,true);
 	}
 
 	// Mouse Dragged on DrawPanel
@@ -337,11 +337,25 @@ public class MainView{
 			{
 				Tool tool = new Tool(State.tool);
 				tool.AddPoints(State.preMouse, State.currMouse);
-				drawPanel.Draw(tool);
+				drawPanel.Draw(tool,true);
 			}
 			
 			State.preMouse = State.currMouse;
 			State.currMouse = mousePoint;
+		}
+		else
+		{
+			// Animation
+			// Code same as Mouse Release with Complete of Draw = false
+			if(State.preMouse==null) return;
+			
+			Point mousePoint = e.getPoint();
+			State.currMouse = mousePoint;
+			
+			Tool tool = new Tool(State.tool);
+			
+			tool.AddPoints(State.preMouse, State.currMouse);
+			drawPanel.Draw(tool,false);
 		}
 	}
 }

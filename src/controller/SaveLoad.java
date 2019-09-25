@@ -31,7 +31,7 @@ public class SaveLoad
 			State.Log("Loading Image: "+savePath);
 			try 
 			{
-				draw.bImage = ImageIO.read(loadFile);
+				draw.mainImage = ImageIO.read(loadFile);
 				draw.repaint();
 			} 
 			catch (IOException e) { State.ErrorLog(e.getMessage()); }

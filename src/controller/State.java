@@ -30,3 +30,19 @@ public class State {
 		System.err.println(msg);
 	}
 }
+
+
+/*
+	----------- TODO List --------------
+	
+	- Add Transition for all tools
+	- Add Undo Redo feature
+	- Fix Circle and Rectangle
+
+
+
+
+
+
+
+*/

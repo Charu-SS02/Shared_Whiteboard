@@ -21,7 +21,7 @@ public class Tool
 	
 	public Tool()
 	{
-		this.type = LINE;
+		this.type = PENCIL;
 		this.width = 1;
 		this.clr = Color.BLACK;
 		points = new ArrayList<Point>();
