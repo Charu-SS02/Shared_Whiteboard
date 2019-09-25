@@ -10,6 +10,7 @@ import controller.ColorSelector;
 import controller.SaveLoad;
 import controller.State;
 import controller.Tool;
+import controller.UndoRedo;
 
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -30,7 +31,7 @@ public class MainView{
 
 	private JFrame frame;
 	DrawPanel drawPanel = new DrawPanel();
-	SaveLoad saveload = new SaveLoad();
+	SaveLoad saveload = new SaveLoad(); 
 	
 	/**
 	 * Launch the application.
@@ -102,25 +103,33 @@ public class MainView{
 		sldStrokeSize.setMinorTickSpacing(1);
 		sldStrokeSize.setMaximum(20);
 		sldStrokeSize.setMinimum(1);
-		sldStrokeSize.setBounds(6, 249, 134, 29);
+		sldStrokeSize.setBounds(6, 235, 134, 29);
 		leftPanel.add(sldStrokeSize);
 		
 		JLabel lblStrokeSize = new JLabel("Stroke Size: 2");
-		lblStrokeSize.setBounds(12, 230, 134, 16);
+		lblStrokeSize.setBounds(12, 216, 134, 16);
 		leftPanel.add(lblStrokeSize);
 		
 		JLabel lblColor = new JLabel("Color");
-		lblColor.setBounds(10, 323, 61, 16);
+		lblColor.setBounds(10, 299, 61, 16);
 		leftPanel.add(lblColor);
 		
 		ColorSelector colorWheel = new ColorSelector();
-		colorWheel.setBounds(6, 351, 134, 134);
+		colorWheel.setBounds(6, 327, 134, 134);
 		leftPanel.add(colorWheel);
 		
 		JPanel pnlColorView = new JPanel();
 		pnlColorView.setBackground(Color.BLACK);
-		pnlColorView.setBounds(75, 315, 65, 29);
+		pnlColorView.setBounds(75, 291, 65, 29);
 		leftPanel.add(pnlColorView);
+		
+		JButton btnUndo = new JButton("Undo");
+		btnUndo.setBounds(6, 484, 65, 39);
+		leftPanel.add(btnUndo);
+		
+		JButton btnRedo = new JButton("Redo");
+		btnRedo.setBounds(75, 484, 65, 39);
+		leftPanel.add(btnRedo);
 		colorWheel.LoadImage();
 		
 		JPanel rightPanel = new JPanel();
@@ -261,7 +270,20 @@ public class MainView{
 		});
 		
 		
-
+		// Mouse Clicked on Undo Button
+		btnUndo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UndoRedo.Undo(drawPanel);
+			}
+		});
+		
+		// Mouse Clicked on Redo Button
+		btnRedo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UndoRedo.Redo(drawPanel);
+			}
+		});
+		
 		//
 		// --------------- Menu Buttons ---------------
 		//
@@ -310,6 +332,7 @@ public class MainView{
 			State.preMouse = null;
 			State.currMouse = mousePoint;
 		}
+		UndoRedo.Update(drawPanel.DeepCopyOfMainImage());
 	}
 	
 	// Mouse Button Released on DrawPanel
@@ -329,7 +352,7 @@ public class MainView{
 	// Mouse Dragged on DrawPanel
 	void MouseDragged(MouseEvent e)
 	{
-		if(State.tool.type == Tool.PENCIL || State.tool.type == Tool.ERASER)
+		if(State.tool.IsContinuesTool())
 		{
 			Point mousePoint = e.getPoint();
 			

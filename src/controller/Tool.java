@@ -58,5 +58,9 @@ public class Tool
 	{
 		return points.get(index);
 	}
-	
+
+	public Boolean IsContinuesTool()
+	{
+		return (type==PENCIL || type==ERASER);
+	}
 }

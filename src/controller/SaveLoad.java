@@ -21,6 +21,8 @@ public class SaveLoad
 		draw.Initialize(draw.getWidth(),draw.getHeight());
 		draw.repaint();
 		savePath = "";
+		
+		UndoRedo.Clear();
 	}
 	
 	public void Load(DrawPanel draw, Component parent)
@@ -35,6 +37,9 @@ public class SaveLoad
 				draw.repaint();
 			} 
 			catch (IOException e) { State.ErrorLog(e.getMessage()); }
+			
+
+			UndoRedo.Clear();
 		}
 	}
 	

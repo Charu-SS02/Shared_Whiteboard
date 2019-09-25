@@ -47,7 +47,7 @@ public class DrawPanel extends JPanel
 	
 	public void Draw(Tool tool, Boolean complete)
 	{
-		
+
 		if(complete) drawImage = mainImage;
 		else drawImage = buffImage; 
 		
@@ -81,8 +81,13 @@ public class DrawPanel extends JPanel
 		// Deep Copy Here
 		//if(!complete) 
 		buffImage = DeepCopy(mainImage);
+		
 	}
 	
+	
+	//
+	// Drawing Function
+	//
 	public void DrawLine(Point p1, Point p2, Color clr, int width)
 	{
 		Graphics2D g2 = drawImage.createGraphics();
@@ -157,6 +162,15 @@ public class DrawPanel extends JPanel
 	    g.dispose();
 	}
 	
+	
+	//
+	// Image Management Functions
+	//
+	public BufferedImage DeepCopyOfMainImage()
+	{
+		return DeepCopy(mainImage);
+	}
+	
 	private BufferedImage DeepCopy(BufferedImage source)
 	{
 	    BufferedImage destination = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
@@ -164,5 +178,12 @@ public class DrawPanel extends JPanel
 	    g.drawImage(source, 0, 0, null);
 	    g.dispose();
 	    return destination;
+	}
+	public void UpdateMainImage(BufferedImage newMain)
+	{
+		mainImage = newMain;
+		drawImage = DeepCopyOfMainImage();
+		buffImage = DeepCopyOfMainImage();
+		repaint();
 	}
 }
