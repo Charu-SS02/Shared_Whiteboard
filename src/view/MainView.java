@@ -29,7 +29,7 @@ import javax.swing.JMenu;
 
 public class MainView{
 
-	private JFrame frame;
+	public JFrame frame;
 	DrawPanel drawPanel = new DrawPanel();
 	SaveLoad saveload = new SaveLoad(); 
 	
@@ -40,8 +40,12 @@ public class MainView{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MainView window = new MainView();
-					window.frame.setVisible(true);
+					//MainView window = new MainView();
+					//window.frame.setVisible(true);
+					
+					LoginView login = new LoginView();
+					login.frame.setVisible(true);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

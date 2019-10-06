@@ -24,7 +24,6 @@ public class DrawPanel extends JPanel
 
 	public DrawPanel()
 	{
-		
 	}
 	public void Initialize(int width,int height)
 	{
