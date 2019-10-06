@@ -19,6 +19,12 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -26,10 +32,12 @@ import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
+import javax.swing.JTextField;
 
-public class MainView{
-
-	private JFrame frame;
+public class MainView {
+        private JFrame frame1;
+        private JFrame frame2;
+        private ArrayList<String> users;
 	DrawPanel drawPanel = new DrawPanel();
 	SaveLoad saveload = new SaveLoad(); 
 	
@@ -37,16 +45,31 @@ public class MainView{
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MainView window = new MainView();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        try {
+                            MainView window = new MainView();
+                            window.frame1.setVisible(true);
+                            window.frame2.setVisible(false);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                ServerSocket ss = new ServerSocket(9000);
+                int ctr = 0;
+
+                while (true) {
+                    Socket cs = ss.accept();
+                    ctr++;
+
+    //                new WorkerThread(ds, file, cs, ctr).start();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
+            }
 	}
 
 	/**
@@ -62,16 +85,37 @@ public class MainView{
 	private void initialize() 
 	{
 		State.Initialize();
-		
-		frame = new JFrame();
-		frame.setBounds(100, 100, 828, 615);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+        
+                // Login GUI
+                frame1 = new JFrame();
+                frame1.setBounds(300, 300, 350, 160);
+		frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame1.getContentPane().setLayout(null);
+        
+                JLabel userLabel = new JLabel();
+                userLabel.setText("Username : ");
+                userLabel.setBounds(25, 25, 80, 30);
+                frame1.getContentPane().add(userLabel);
+
+                JTextField user = new JTextField();
+                user.setBounds(110, 25, 210, 30);
+                frame1.getContentPane().add(user);
+
+                JButton loginButton = new JButton();
+                loginButton.setText("Login");
+                loginButton.setBounds(130, 75, 75, 30);
+                frame1.getContentPane().add(loginButton);
+
+                // White Board GUI
+		frame2 = new JFrame();
+		frame2.setBounds(100, 100, 828, 615);
+		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame2.getContentPane().setLayout(null);
 		
 		JPanel leftPanel = new JPanel();
 		leftPanel.setBounds(0, 0, 146, 567);
 		leftPanel.setBackground(Color.LIGHT_GRAY);
-		frame.getContentPane().add(leftPanel);
+		frame2.getContentPane().add(leftPanel);
 		leftPanel.setLayout(null);
 		
 		JButton btnCircle = new JButton("Circle");
@@ -135,16 +179,14 @@ public class MainView{
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBounds(713, 0, 113, 567);
 		rightPanel.setBackground(Color.LIGHT_GRAY);
-		frame.getContentPane().add(rightPanel);
-		
-		
+		frame2.getContentPane().add(rightPanel);
 		
 		drawPanel.setBackground(Color.WHITE);
 		drawPanel.setBounds(162, 6, 539, 561);
-		frame.getContentPane().add(drawPanel);
+		frame2.getContentPane().add(drawPanel);
 		
 		JMenuBar menuBar = new JMenuBar();
-		frame.setJMenuBar(menuBar);
+		frame2.setJMenuBar(menuBar);
 		
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
@@ -269,7 +311,6 @@ public class MainView{
 			}
 		});
 		
-		
 		// Mouse Clicked on Undo Button
 		btnUndo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -292,32 +333,39 @@ public class MainView{
 		// Menu New Button Click
 		mntmNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveload.New(drawPanel, frame);
+				saveload.New(drawPanel, frame2);
 			}
 		});
 
 		// Menu Load Button Click
 		mntmLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveload.Load(drawPanel, frame);
+				saveload.Load(drawPanel, frame2);
 			}
 		});
 		
 		// Menu Save Button Click
 		mntmSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveload.Save(drawPanel.mainImage, frame);
+				saveload.Save(drawPanel.mainImage, frame2);
 			}
 		});
 		
 		// Menu Save As Button Click
 		mntmSaveAs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveload.SaveAs(drawPanel.mainImage,frame);
+				saveload.SaveAs(drawPanel.mainImage,frame2);
 			}
 		});
 		
-	
+                loginButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        frame1.setVisible(false);
+                        frame2.setVisible(true);
+                        System.out.println(user.getText());
+//                        users.add(user.getText());
+                    }
+                });
 	}
 	
 	
