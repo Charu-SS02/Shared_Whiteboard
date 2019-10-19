@@ -96,7 +96,7 @@ public class LoginView {
 			public void actionPerformed(ActionEvent e) {
 				
 				String uname = textField.getText();
-				String pwd = textField.getText();
+				String pwd = passwordField.getText();
 				
 				
 				if(uname.equals("")) { lblError.setText("Please enter User Name"); return;}
