@@ -2,9 +2,10 @@ package controller;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Tool 
+public class Tool implements Serializable
 {
 	public static final int ERASER 		= 0000;
 	public static final int LINE 		= 0001;
@@ -18,6 +19,8 @@ public class Tool
 	public Color clr;
 	public int width;
 	public int type;
+
+	private static final long serialVersionUID = 20121731125400L;
 	
 	public Tool()
 	{

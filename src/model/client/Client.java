@@ -16,9 +16,6 @@ public class Client {
 
             IRemoteChat remoteChat = (IRemoteChat) registry.lookup("Chat");
 
-            System.out.println("Calling method sendMessage" + remoteChat.sendMessage("test1"));
-
-            System.out.println("Calling method receiveMessage" + remoteChat.receiveMessage("test2"));
 
         }catch (Exception e){
             e.printStackTrace();

@@ -7,6 +7,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 import javax.swing.JPanel;
 
@@ -14,13 +17,16 @@ import controller.State;
 import controller.Tool;
 import controller.UndoRedo;
 
-@SuppressWarnings("serial")
-public class DrawPanel extends JPanel
+//private static final long serialVersionUID = 20120731125400L;
+public class DrawPanel extends JPanel implements Serializable
 {
+	public String n = "Server";
 	public int width, height;
 	public BufferedImage mainImage; 
 	public BufferedImage drawImage; 
-	public BufferedImage buffImage; 
+	public BufferedImage buffImage;
+
+	private static final long serialVersionUID = 20120731125410L;
 
 	public DrawPanel()
 	{
@@ -45,8 +51,10 @@ public class DrawPanel extends JPanel
        g.drawImage(drawImage, 0, 0, null);
     }
 	
-	public void Draw(Tool tool, Boolean complete)
+	
+	public void Draw(Tool tool, Boolean complete, Boolean broadCast)
 	{
+		
 
 		if(complete) drawImage = mainImage;
 		else drawImage = buffImage; 
@@ -181,9 +189,11 @@ public class DrawPanel extends JPanel
 	}
 	public void UpdateMainImage(BufferedImage newMain)
 	{
-		mainImage = newMain;
+		mainImage = DeepCopy(newMain);
 		drawImage = DeepCopyOfMainImage();
 		buffImage = DeepCopyOfMainImage();
 		repaint();
+		
+		State.Log("Updateing Draw Image "+n);
 	}
 }
