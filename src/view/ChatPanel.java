@@ -1,59 +1,107 @@
 package view;
 
 import javax.swing.*;
+
+import java.awt.Component;
 import java.io.Serializable;
 
 import controller.Message;
+import controller.State;
 
 public class ChatPanel extends JPanel implements Serializable {
 
-    public int width, height;
+   
 
-    public JLabel[] msgLabels = new JLabel[5];      // there are only five labels in message panel
+    int maxMessages = 10;
+    public JLabel[] msgLabels;
 
     private static final long serialVersionUID = 20120731125410L;
 
-    public ChatPanel(){}
-
-    public void Initialize(int width, int height){
-        this.width = width;
-        this.height = height;
-
-        // initialize message labels to blank string
-        for(int i=0;i<5;i++)
-            msgLabels[i] = new JLabel("test");
-
-        // add message labels into the panel
-        for(int i=0;i<5;i++){
-            this.add(msgLabels[i]);
-        }
+    public ChatPanel()
+    {
+    	
     }
 
+    public void Initialize(int maxMessages)
+    {
+    	State.Log("Initializing");
+        this.maxMessages = maxMessages;
+        
+        msgLabels = new JLabel[maxMessages];
+        for(int i=0;i<maxMessages;i++)
+    		msgLabels[i] = null;
+
+		State.Log(" 3.1 ");
+        LoadLabels();
+    }
+    
+    public void AddLabel(JLabel label)
+    {
+    	State.Log("Adding labels");
+    	for(int i=0;i<maxMessages;i++)
+    		if(msgLabels[i]==null)
+    		{
+    			msgLabels[i] = label;
+    			msgLabels[i].setText("");
+    			State.Log("ADDED");
+    			return;
+    		}
+    }
+    public void LoadLabels()
+    {
+
+		State.Log(" 3.2 ");
+    	Component[] components = this.getComponents();
+    	int count = components.length;
+    	for (int i = count-1;i>=0;i--) 
+    	{
+    		Component field = components[i];
+    	    if (field instanceof JLabel) 
+    	    {
+    			State.Log(" 3.3 ");
+    	    	AddLabel((JLabel)field);
+    			State.Log(" 3.4 ");
+    	    }
+    		State.Log(" 3.5 ");
+    	}
+    }
+    
     public void addMessage(Message message, boolean broadcast){
-        boolean found = false;
-        String msg = message.getUsername() + " >> " + message.getText();
+    	
+    	State.Log("Message To Display ---> "+message.getText());
+    	
+    	State.Log("M 1 ");
+    	
+    	if(msgLabels[0]!=null)
+    	{
+        	State.Log("M 2 ");
+	    	String tmp = msgLabels[0].getText();
+	    	for(int i=1;i<maxMessages-1;i++)
+	    	{
 
-        // find empty jLabel
-        for(int i=0;i<5;i++){
-            if(msgLabels[i].getText() == ""){
-                msgLabels[i].setText(msg);
-                found = true;
-                break;
-            }
-        }
-
-        if(!found){
-            // move the next label to the current label
-            for(int i =0;i<4;i++){
-                msgLabels[i] = msgLabels[i+1];
-            }
-            // add the new msg in to the last label
-            msgLabels[4].setText(msg);
-        }
+	        	State.Log("M 3 ");
+	    		if(msgLabels[i]==null) break;
+	    		String tmp2 = msgLabels[i].getText();
+    			msgLabels[i].setText(tmp);
+    			tmp = tmp2;
+	    	}
+    	}
+    	State.Log("M END");
+    	msgLabels[0].setText(FormatMessage(message));
+    	
         // refresh the page
         repaint();
     }
+    
+    String FormatMessage(Message message)
+    {
+    	String m = "<html>";
+    			
+    	m += "<strong>"+message.getUsername()+"</strong><br>";
+    	m += "  "+message.getText()+"  <br>";
+    	m += "<font size=\"-3\">  "+message.getTime()+"  </font>";
+    	m += "</html>";
+    	return m;
+    }
 
-    public int getWidth(){ return width; }
-    public int getHeight(){ return height; }
 }

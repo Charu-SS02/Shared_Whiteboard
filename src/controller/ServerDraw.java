@@ -10,11 +10,12 @@ import java.rmi.registry.Registry;
 
 import model.remote.IRemoteDrawServer;
 import model.server.RemoteDrawServer;
+import view.ChatPanel;
 import view.DrawPanel;
 
 public class ServerDraw {
 	
-	public ServerDraw(DrawPanel dpanel, String ip, String port)
+	public ServerDraw(DrawPanel dpanel,ChatPanel chatPanel, String ip, String port)
 	{
 		IRemoteDrawServer remoteDraw;
 		Registry registry;
@@ -23,7 +24,11 @@ public class ServerDraw {
 			int portInt = Integer.parseInt(port);
 			// create registry
 			LocateRegistry.createRegistry(portInt);
-			remoteDraw = new RemoteDrawServer(dpanel);
+			
+			State.Log(chatPanel.getName());
+			
+			remoteDraw = new RemoteDrawServer(dpanel,chatPanel);
+			
 			registry = LocateRegistry.getRegistry(ip, portInt);
 			registry.bind("DrawMethod", remoteDraw);
 

@@ -116,10 +116,11 @@ public class ModeSelect {
 				
 				MainViewMaster masterView;
 				try {
-					masterView = new MainViewMaster(ip, port);
+					masterView = new MainViewMaster(ip, port,uname);
 					masterView.frame.setVisible(true);
 					frame.setVisible(false);
 				} catch (Exception e1) {
+					State.ErrorLog(e1.getMessage());
 					State.ShowErrors(e1, "ModeSelect - btnCreate.addActionListener");
 				}
 				
@@ -139,7 +140,7 @@ public class ModeSelect {
 				
 				MainViewClient clientView;
 				try {
-					clientView = new MainViewClient(ip,port);
+					clientView = new MainViewClient(ip,port,uname);
 					clientView.frame.setVisible(true);
 					frame.setVisible(false);
 				} catch (MalformedURLException | AlreadyBoundException e1) {

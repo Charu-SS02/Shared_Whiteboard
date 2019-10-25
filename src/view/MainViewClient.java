@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
@@ -20,16 +22,17 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import controller.ColorSelector;
+import controller.Message;
 import controller.SaveLoad;
 import controller.State;
 import controller.Tool;
-import controller.UndoRedo;
-import model.client.ClientChat;
+import controller.UndoRedo; 
 import model.client.ClientDraw;
 import model.remote.IRemoteDraw;
 import model.remote.IRemoteDrawClient;
@@ -44,7 +47,9 @@ public class MainViewClient {
 
 	String ip;
 	String port;
-	private GridBagConstraints gbc_msgPanel;
+	String uname = "Unknow Client";
+	private GridBagConstraints gbc_chatPanel;
+	int maxMessages = 10;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -68,16 +73,17 @@ public class MainViewClient {
 	/**
 	 * @wbp.parser.entryPoint
 	 */
-	public MainViewClient(String ip, String port) throws MalformedURLException, AlreadyBoundException {
+	public MainViewClient(String ip, String port, String uname) throws MalformedURLException, AlreadyBoundException {
 		
 		drawPanel.n = "Client"; 
 		
 		initialize();
 		this.ip = ip;
 		this.port = port;
+		this.uname = uname;
 		try {
-			ClientDraw clientDraw = new ClientDraw(drawPanel, ip, port);
-			ClientChat clientChat = new ClientChat(chatPanel, ip, port);
+			ClientDraw clientDraw = new ClientDraw(drawPanel,chatPanel, ip, port,uname);
+			//ClientChat clientChat = new ClientChat(chatPanel, ip, port);
 		} catch (NotBoundException e) {
 			State.ShowErrors(e, "MainViewClient - constructor");
 		}
@@ -88,7 +94,7 @@ public class MainViewClient {
 
 		frame = new JFrame();
 		frame.getContentPane().setBackground(new Color(0, 0, 0));
-		frame.setBounds(100, 100, 828, 615);
+		frame.setBounds(100, 100, 828, 665);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 157, 461, 163 };
@@ -305,14 +311,20 @@ public class MainViewClient {
 		gbc_btnEraser.gridx = 1;
 		gbc_btnEraser.gridy = 9;
 		leftPanel.add(btnEraser, gbc_btnEraser);
-
-		JLabel label_2 = new JLabel(" ");
-		GridBagConstraints gbc_label_2 = new GridBagConstraints();
-		gbc_label_2.fill = GridBagConstraints.HORIZONTAL;
-		gbc_label_2.insets = new Insets(0, 0, 0, 5);
-		gbc_label_2.gridx = 1;
-		gbc_label_2.gridy = 10;
-		leftPanel.add(label_2, gbc_label_2);
+		
+		JButton btnSync = new JButton("Sync");
+		GridBagConstraints gbc_btnSync = new GridBagConstraints();
+		gbc_btnSync.insets = new Insets(0, 0, 0, 5);
+		gbc_btnSync.gridx = 1;
+		gbc_btnSync.gridy = 10;
+		leftPanel.add(btnSync, gbc_btnSync);
+		
+		JButton btnReqSync = new JButton("Req Sync");
+		GridBagConstraints gbc_btnReqSync = new GridBagConstraints();
+		gbc_btnReqSync.insets = new Insets(0, 0, 0, 5);
+		gbc_btnReqSync.gridx = 2;
+		gbc_btnReqSync.gridy = 10;
+		leftPanel.add(btnReqSync, gbc_btnReqSync);
 
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
@@ -339,12 +351,12 @@ public class MainViewClient {
 		gbl_rightPanel.rowWeights = new double[] { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
 				Double.MIN_VALUE };
 		rightPanel.setLayout(gbl_rightPanel);
-		GridBagLayout gbl_msgPanel = new GridBagLayout();
-		gbl_msgPanel.columnWidths = new int[] { 170, 0 };
-		gbl_msgPanel.rowHeights = new int[] { 29, 0 };
-		gbl_msgPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_msgPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
-		panel.setLayout(gbl_msgPanel);
+		GridBagLayout gbl_chatPanel = new GridBagLayout();
+		gbl_chatPanel.columnWidths = new int[] { 170, 0 };
+		gbl_chatPanel.rowHeights = new int[] { 29, 0 };
+		gbl_chatPanel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_chatPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+		panel.setLayout(gbl_chatPanel);
 		drawPanel.setBounds(-33, 0, 575, 561);
 		GridBagConstraints gbc_drawPanel = new GridBagConstraints();
 		gbc_drawPanel.fill = GridBagConstraints.BOTH;
@@ -383,88 +395,87 @@ public class MainViewClient {
 				MouseDragged(e);
 			}
 		});
-		GridBagConstraints gbc_msgPanel = new GridBagConstraints();
-		gbc_msgPanel.anchor = GridBagConstraints.NORTH;
-		gbc_msgPanel.gridy = 0;
-		gbc_msgPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_msgPanel.fill = GridBagConstraints.BOTH;
-		gbc_msgPanel.gridx = 0;
+		GridBagConstraints gbc_chatPanel = new GridBagConstraints();
+		gbc_chatPanel.anchor = GridBagConstraints.NORTH;
+		gbc_chatPanel.gridy = 0;
+		gbc_chatPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_chatPanel.fill = GridBagConstraints.BOTH;
+		gbc_chatPanel.gridx = 0;
 		GridBagConstraints gbc_panel_4_1 = new GridBagConstraints();
 		gbc_panel_4_1.anchor = GridBagConstraints.NORTHWEST;
 		gbc_panel_4_1.fill = GridBagConstraints.BOTH;
 		gbc_panel_4_1.gridx = 0;
 		gbc_panel_4_1.gridy = 1;
 
-		JPanel msgPanel = new JPanel();
 		GridBagConstraints gbc_panel_11;
-		gbc_msgPanel = new GridBagConstraints();
-		gbc_msgPanel.gridheight = 11;
-		gbc_msgPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_msgPanel.fill = GridBagConstraints.BOTH;
-		gbc_msgPanel.gridx = 0;
-		gbc_msgPanel.gridy = 0;
-		rightPanel.add(msgPanel, gbc_msgPanel);
-		GridBagLayout gbl_msgPanel1 = new GridBagLayout();
-		gbl_msgPanel1.columnWidths = new int[] { 46, 0 };
-		gbl_msgPanel1.rowHeights = new int[] { 39, 34, 44, 46, 40, 42, 44, 31, 0 };
-		gbl_msgPanel1.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_msgPanel1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		msgPanel.setLayout(gbl_msgPanel1);
+		gbc_chatPanel = new GridBagConstraints();
+		gbc_chatPanel.gridheight = 11;
+		gbc_chatPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_chatPanel.fill = GridBagConstraints.BOTH;
+		gbc_chatPanel.gridx = 0;
+		gbc_chatPanel.gridy = 0;
+		rightPanel.add(chatPanel, gbc_chatPanel);
+		GridBagLayout gbl_chatPanel1 = new GridBagLayout();
+		gbl_chatPanel1.columnWidths = new int[] { 46, 0 };
+		gbl_chatPanel1.rowHeights = new int[] { 39, 34, 44, 46, 40, 42, 44, 31, 0 };
+		gbl_chatPanel1.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_chatPanel1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		chatPanel.setLayout(gbl_chatPanel1);
 
 		JLabel lblNewLabel = new JLabel("New label");
 		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
 		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel.gridx = 0;
 		gbc_lblNewLabel.gridy = 0;
-		msgPanel.add(lblNewLabel, gbc_lblNewLabel);
+		chatPanel.add(lblNewLabel, gbc_lblNewLabel);
 
 		JLabel lblNewLabel_2 = new JLabel("New label");
 		GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
 		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_2.gridx = 0;
 		gbc_lblNewLabel_2.gridy = 1;
-		msgPanel.add(lblNewLabel_2, gbc_lblNewLabel_2);
+		chatPanel.add(lblNewLabel_2, gbc_lblNewLabel_2);
 
 		JLabel label_3 = new JLabel("New label");
 		GridBagConstraints gbc_label_3 = new GridBagConstraints();
 		gbc_label_3.insets = new Insets(0, 0, 5, 0);
 		gbc_label_3.gridx = 0;
 		gbc_label_3.gridy = 2;
-		msgPanel.add(label_3, gbc_label_3);
+		chatPanel.add(label_3, gbc_label_3);
 
 		JLabel lblNewLabel_1 = new JLabel("New label");
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
 		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_1.gridx = 0;
 		gbc_lblNewLabel_1.gridy = 3;
-		msgPanel.add(lblNewLabel_1, gbc_lblNewLabel_1);
+		chatPanel.add(lblNewLabel_1, gbc_lblNewLabel_1);
 
 		JLabel lblNewLabel_3 = new JLabel("New label");
 		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
 		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_3.gridx = 0;
 		gbc_lblNewLabel_3.gridy = 4;
-		msgPanel.add(lblNewLabel_3, gbc_lblNewLabel_3);
+		chatPanel.add(lblNewLabel_3, gbc_lblNewLabel_3);
 
 		JLabel lblNewLabel_4 = new JLabel("New label");
 		GridBagConstraints gbc_lblNewLabel_4 = new GridBagConstraints();
 		gbc_lblNewLabel_4.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_4.gridx = 0;
 		gbc_lblNewLabel_4.gridy = 5;
-		msgPanel.add(lblNewLabel_4, gbc_lblNewLabel_4);
+		chatPanel.add(lblNewLabel_4, gbc_lblNewLabel_4);
 
 		JLabel lblNewLabel_5 = new JLabel("New label");
 		GridBagConstraints gbc_lblNewLabel_5 = new GridBagConstraints();
 		gbc_lblNewLabel_5.insets = new Insets(0, 0, 5, 0);
 		gbc_lblNewLabel_5.gridx = 0;
 		gbc_lblNewLabel_5.gridy = 6;
-		msgPanel.add(lblNewLabel_5, gbc_lblNewLabel_5);
+		chatPanel.add(lblNewLabel_5, gbc_lblNewLabel_5);
 
 		JLabel lblNewLabel_6 = new JLabel("New label");
 		GridBagConstraints gbc_lblNewLabel_6 = new GridBagConstraints();
 		gbc_lblNewLabel_6.gridx = 0;
 		gbc_lblNewLabel_6.gridy = 7;
-		msgPanel.add(lblNewLabel_6, gbc_lblNewLabel_6);
+		chatPanel.add(lblNewLabel_6, gbc_lblNewLabel_6);
 		GridBagConstraints gbc_lblNewLabel_21 = new GridBagConstraints();
 		gbc_lblNewLabel_21.anchor = GridBagConstraints.NORTHWEST;
 		gbc_lblNewLabel_21.insets = new Insets(0, 0, 5, 0);
@@ -472,34 +483,31 @@ public class MainViewClient {
 		gbc_lblNewLabel_21.gridy = 0;
 
 		JPanel panel_2 = new JPanel();
+		panel_2.setLayout(null);
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
 		gbc_panel_2.gridx = 0;
 		gbc_panel_2.gridy = 11;
 		rightPanel.add(panel_2, gbc_panel_2);
-		GridBagLayout gbl_panel_2 = new GridBagLayout();
-		gbl_panel_2.columnWidths = new int[] { 43, 0, 0 };
-		gbl_panel_2.rowHeights = new int[] { 19, 0 };
-		gbl_panel_2.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-		gbl_panel_2.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
-		panel_2.setLayout(gbl_panel_2);
 
 		JTextField msgTextField = new JTextField("hello world");
-		GridBagConstraints gbc_msgTextField = new GridBagConstraints();
-		gbc_msgTextField.insets = new Insets(0, 0, 0, 5);
-		gbc_msgTextField.anchor = GridBagConstraints.NORTHWEST;
-		gbc_msgTextField.gridx = 0;
-		gbc_msgTextField.gridy = 0;
-		panel_2.add(msgTextField, gbc_msgTextField);
-		msgTextField.setBounds(10, 22, 96, 65);
+		panel_2.add(msgTextField);
+		msgTextField.setBounds(0, 0, 150, 26);
 		// panel_3.add(msgTextField);
 		msgTextField.setColumns(10);
 
 		JButton btnSend = new JButton("Send");
-		GridBagConstraints gbc_btnSend = new GridBagConstraints();
-		gbc_btnSend.gridx = 1;
-		gbc_btnSend.gridy = 0;
-		panel_2.add(btnSend, gbc_btnSend);
+		btnSend.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// get message in textfield and send to RMI server
+				String str = msgTextField.getText();
+				Message msg = new Message(uname, str);
+
+				addMessage(msg, true);
+			}
+		});
+		btnSend.setBounds(75, 38, 75, 29);
+		panel_2.add(btnSend);
 		btnSend.setHorizontalAlignment(SwingConstants.RIGHT);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -522,6 +530,12 @@ public class MainViewClient {
 
 		Color buttonHover = Color.decode("#FF1654");
 
+		
+
+		chatPanel.Initialize(maxMessages);
+		
+		
+		
 		// ON hover
 		btnPencil.addMouseListener(new java.awt.event.MouseAdapter() {
 			public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -658,6 +672,21 @@ public class MainViewClient {
 				int strokeVal = sldStrokeSize.getValue();
 				State.tool.width = strokeVal;
 				lblStrokeSize.setText("Stroke Size: " + strokeVal);
+			}
+		});
+		
+		
+		// Request Sync Button Clicked
+		btnReqSync.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RequestSync(true);
+			}
+		});
+
+		// Sync Button Clicked
+		btnSync.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Sync(true);
 			}
 		});
 
@@ -812,5 +841,65 @@ public class MainViewClient {
 			}
 		}
 		drawPanel.Draw(tool, complete, false);
+	}
+	public void RequestSync(Boolean broadCast) {
+		if (broadCast) {
+			Registry registry;
+			try {
+				int portInt = Integer.parseInt(port);
+				registry = LocateRegistry.getRegistry(ip, portInt);
+
+				System.out.println("Request Image Sync Called");
+				IRemoteDrawServer remoteDraw = (IRemoteDrawServer) registry.lookup("DrawMethod");
+				
+				remoteDraw.RequestSync(true);
+				
+			} catch (RemoteException | NotBoundException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	public void Sync(Boolean broadCast) {
+		if (broadCast) {
+			Registry registry;
+			try {
+				int portInt = Integer.parseInt(port);
+				registry = LocateRegistry.getRegistry(ip, portInt);
+
+				System.out.println("Request Image Sync Called");
+				IRemoteDrawServer remoteDraw = (IRemoteDrawServer) registry.lookup("DrawMethod");
+				
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			    try {
+					ImageIO.write(drawPanel.buffImage, "jpg", outputStream);
+				} catch (IOException e) {
+					State.Log("In Image syn client");
+					State.Log(e.getMessage());
+				}
+			    
+				remoteDraw.Sync(outputStream.toByteArray(),true);
+				
+			} catch (RemoteException | NotBoundException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	public void addMessage(Message message, boolean broadcast) {
+		// broadcast should be always be true
+		
+		State.Log("Broadcasting message");
+		Registry registry;
+		try {
+			int portInt = Integer.parseInt(port);
+			registry = LocateRegistry.getRegistry(ip, portInt);
+
+			State.Log("Server sending a message");
+			IRemoteDrawServer remort = (IRemoteDrawServer) registry.lookup("DrawMethod");
+
+			remort.addMessage(message, broadcast);
+		} catch (Exception e) {
+			State.ErrorLog(e.getMessage());
+			State.ShowErrors(e, "MainViewMaster - addMessage");
+		}
 	}
 }

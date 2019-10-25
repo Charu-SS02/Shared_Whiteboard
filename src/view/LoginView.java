@@ -45,7 +45,7 @@ public class LoginView {
 	 * Create the application.
 	 */
 	public LoginView() {
-		System.setProperty("java.rmi.server.hostname","localhost");
+		//System.setProperty("java.rmi.server.hostname","localhost");
 		initialize();
 	}
 
